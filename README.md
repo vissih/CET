@@ -1,1 +1,1 @@
-# paint-github-c7e50
+# tickergro
