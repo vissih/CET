@@ -1,0 +1,31 @@
+//@version=5
+indicator("Extended Inside Bar (Body Only) with Candle Coloring", overlay=true)
+
+// Get the body of the current candle A (index 1)
+openA = open[1]  // Open of the current candle A
+closeA = close[1]  // Close of the current candle A
+
+// Get the body of Candle X (left candle) and Candle B (right candle)
+openX = open[2]
+closeX = close[2]
+openB = open
+closeB = close
+
+// Determine the body range of Candle A (find min and max of open/close)
+bodyHighA = math.max(openA, closeA)
+bodyLowA = math.min(openA, closeA)
+
+// Check if the body of Candle X is inside the body of Candle A
+insideBarX = (math.max(openX, closeX) <= bodyHighA and math.min(openX, closeX) >= bodyLowA)
+
+// Check if the body of Candle B is inside the body of Candle A
+insideBarB = (math.max(openB, closeB) <= bodyHighA and math.min(openB, closeB) >= bodyLowA)
+
+// If both conditions are true, we color the 3 candles
+extendedInsideBar = insideBarX and insideBarB
+
+// Apply colors to Candle X, Candle A, and Candle B
+barcolor(extendedInsideBar[2] ? color.red : na, offset=-2, title="Candle X")  // Color for Candle X
+barcolor(extendedInsideBar[1] ? color.orange : na, offset=-1, title="Candle A")  // Color for Candle A
+barcolor(extendedInsideBar ? color.green : na, title="Candle B")  // Color for Candle B
+

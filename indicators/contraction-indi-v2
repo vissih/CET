@@ -1,0 +1,35 @@
+//@version=5
+indicator("Extended Inside Bar (Body Only) with Candle Coloring and 50% Line", overlay=true)
+
+// Get the body of the current candle A (index 1)
+openA = open[1]
+closeA = close[1]
+
+// Get the body of Candle X (left candle) and Candle B (right candle)
+openX = open[2]
+closeX = close[2]
+openB = open
+closeB = close
+
+// Determine the body range of Candle A (find min and max of open/close)
+bodyHighA = math.max(openA, closeA)
+bodyLowA = math.min(openA, closeA)
+
+// Check if the body of Candle X is inside the body of Candle A
+insideBarX = (math.max(openX, closeX) <= bodyHighA and math.min(openX, closeX) >= bodyLowA)
+
+// Check if the body of Candle B is inside the body of Candle A
+insideBarB = (math.max(openB, closeB) <= bodyHighA and math.min(openB, closeB) >= bodyLowA)
+
+// If both conditions are true, mark it as an extended inside bar
+extendedInsideBar = insideBarX and insideBarB
+
+// Color Candle X, Candle A, and Candle B individually
+barcolor(extendedInsideBar and insideBarX ? color.red : na, offset=-2, title="Candle X")  // Color Candle X
+barcolor(extendedInsideBar ? color.orange : na, offset=-1, title="Candle A")  // Color Candle A
+barcolor(extendedInsideBar and insideBarB ? color.green : na, title="Candle B")  // Color Candle B
+
+// Plot a horizontal line at 50% of Candle A body, extend it to the current price
+midBodyA = (bodyHighA + bodyLowA) / 2
+line.new(x1=bar_index[1], y1=midBodyA, x2=bar_index, y2=midBodyA, color=color.blue, width=1, extend=extend.right)
+
