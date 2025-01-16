@@ -1,0 +1,16 @@
+//@version=6
+indicator('MAGIC-v2 by vissih', overlay = true)
+
+// Calculate previous candle body boundaries
+prevBodyHigh = math.max(open[1], close[1])
+prevBodyLow = math.min(open[1], close[1])
+
+// Conditions for magic candles
+isBullishMagic = close >= prevBodyHigh and low <= low[1]
+isBearishMagic = close <= prevBodyLow and high >= high[1]
+
+// Plot the bullish magic candle
+plotshape(series = isBullishMagic, title = 'Bullish Magic Candle', style = shape.triangleup, location = location.belowbar, color = color.new(color.green, 0))
+
+// Plot the bearish magic candle
+plotshape(series = isBearishMagic, title = 'Bearish Magic Candle', style = shape.triangledown, location = location.abovebar, color = color.new(color.red, 0))
