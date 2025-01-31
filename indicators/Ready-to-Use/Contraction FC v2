@@ -1,5 +1,5 @@
 //@version=6
-indicator('Contraction FC v2', overlay = true)
+indicator('FC v2', overlay = true)
 
 // Input for colors
 textColor = input.color(color.white, title = 'Text Color')
