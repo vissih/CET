@@ -1,1 +1,1 @@
-# tickergro
+# trading tools code
