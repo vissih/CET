@@ -1,0 +1,56 @@
+//@version=6
+indicator('GWC', overlay = true)
+
+// === Inputs ===
+minWickBreak = input.float(1.0, title = 'Minimum Wick Breakout (USD)', minval = 0.0, maxval = 5.0, step = 0.1)
+minBodySize  = input.float(4.0, title = 'Minimum Body Size (USD)', minval = 0.0, maxval = 10.0, step = 0.1)
+confirmationBodyPct = input.int(100, title = 'Confirmation Candle Body Size (%)', minval = 0, maxval = 100, step = 1)
+
+// === Swing High/Low Logic ===
+isSwingHigh = high > high[1] and high > high[2]
+isSwingLow  = low < low[1] and low < low[2]
+
+// === Current candle body size ===
+currBodySize = math.abs(close - open)
+
+// === Previous candle body range ===
+prevBodyHigh = math.max(open[1], close[1])
+prevBodyLow  = math.min(open[1], close[1])
+
+// === Wick reference extremes ===
+lowestPrevLows   = math.min(low[1], low[2])
+highestPrevHighs = math.max(high[1], high[2])
+
+// === Golden Wick Conditions ===
+// Bullish GW: close inside/above body, wick breaks prev lows, swing low
+isBullishGW = (close >= prevBodyLow and close <= prevBodyHigh or close > prevBodyHigh) and 
+              (lowestPrevLows - low) > minWickBreak and 
+              currBodySize >= minBodySize and 
+              close > open and isSwingLow
+
+// Bearish GW: close inside/below body, wick breaks prev highs, swing high
+isBearishGW = (close >= prevBodyLow and close <= prevBodyHigh or close < prevBodyLow) and 
+              (high - highestPrevHighs) > minWickBreak and 
+              currBodySize >= minBodySize and 
+              close < open and isSwingHigh
+
+// === Calculate Confirmation Candle Body Size based on the actual GWC body size ===
+gwBodySize = math.abs(close[1] - open[1])  // Body size of the previously marked GWC
+confirmationBodySize = gwBodySize * (confirmationBodyPct / 100)  // Apply percentage to the GWC body size
+
+// === Confirmation logic: Check if next candle is the same as the previous one ===
+// Bullish confirmation: Check if the next candle is bullish with body size based on GWC body size
+confirmNextBullish = isBullishGW[1] and close > open and math.abs(close - open) >= confirmationBodySize
+
+// Bearish confirmation: Check if the next candle is bearish with body size based on GWC body size
+confirmNextBearish = isBearishGW[1] and close < open and math.abs(close - open) >= confirmationBodySize
+
+// === Plot Golden Wick Candles ===
+plotshape(series = isBullishGW, title = 'Bullish GWC', style = shape.triangleup, location = location.belowbar, color = color.new(color.green, 0))
+plotshape(series = isBearishGW, title = 'Bearish GWC', style = shape.triangledown, location = location.abovebar, color = color.new(color.red, 0))
+
+// === Plot confirmation on the next candle if the nature is the same and body is valid ===
+plotshape(series = confirmNextBullish, title = 'Confirmed Bullish GWC', style = shape.circle, location = location.belowbar, color = color.green, size = size.tiny)
+plotshape(series = confirmNextBearish, title = 'Confirmed Bearish GWC', style = shape.circle, location = location.abovebar, color = color.red, size = size.tiny)
+
+// end
