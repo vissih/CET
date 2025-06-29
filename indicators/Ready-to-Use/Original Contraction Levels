@@ -1,0 +1,149 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © xobiccc
+
+//@version=5
+indicator("Contraction Levels", overlay = true)
+
+// user inputs
+size = input.int(title = "Number of Contractions", defval = 5, step = 1, maxval = 10)
+tolerance = input.float(title = "Tolerance for the Contraction Candles", defval = 0.001, step = 0.001, maxval = 0.1)
+percent_x = input.int(title = "Contraction Level Percentage", defval = 50, step = 1, maxval = 100, minval = 0)
+percent_filter = input.int(title = "Filter Level Percentage", defval = 10, step = 1, maxval = 100, minval = 0)
+
+show_contraction_candles = input.bool(title = "Show Contraction Candles", defval = true)
+show_center_line = input.bool(title = "Show Center Lines", defval = true)
+show_filter_line = input.bool(title = "Show Filter Lines", defval = true)
+
+contraction_alert = input.bool(title = "Alert on New Contraction Bar", defval = true)
+bullish_alert = input.bool(title = "Alert on New Bullish Break", defval = true)
+bearish_alert = input.bool(title = "Alert on New Bearish Break", defval = true)
+center_line_alert = input.bool(title = "Alert on Crossing a Centerline", defval = true)
+up_filter_line_alert = input.bool(title = "Alert on Crossing a Upper Filter Line", defval = true)
+dn_filter_line_alert = input.bool(title = "Alert on Crossing a Lower Filter Line", defval = true)
+
+
+bullish_color = input.color(title = "Bullish Contraction Color", defval = color.green)
+neutral_color = input.color(title = "New Contraction Color", defval = color.blue)
+bearish_color = input.color(title = "Bearish Contraction Color", defval = color.red)
+
+contraction_candle_color = input.color(title = "Contraction Candle Color", defval = color.blue)
+
+
+// Variables
+var float[] upper_threshold = array.new_float(size, 99999999.0)
+var float[] lower_threshold = array.new_float(size, 0.0)
+var float[] line_x_loc = array.new_float(size, 0.0)
+var float[] upper_filter = array.new_float(size, 0.0)
+var float[] lower_filter = array.new_float(size, 0.0)
+
+var int[] bar_indexx = array.new_int(size,0)
+var color[] line_colors = array.new_color(size, bullish_color)
+
+
+//Update line colors
+for i = 0 to size -1
+    if array.get(line_colors,i) == neutral_color
+        if close > array.get(upper_threshold,i) // bullish breakout
+            array.set(line_colors, i, bullish_color)
+            if bullish_alert
+                alert("New Bullish Breakout")
+                
+        if close < array.get(lower_threshold,i) // bearish breakout
+            array.set(line_colors, i, bearish_color)
+            if bearish_alert
+                alert("New Bearish Breakout")
+
+// Contraction Bar bullish or bearish
+bullish_contr = close[1] > open[1] // bullish contr bar
+upp = bullish_contr ? close[1] : open[1]
+loww = bullish_contr? open[1] : close[1]
+
+up_wick = bullish_contr ? high[1] - close[1] : high[1] - open[1]
+dn_wick = bullish_contr ? open[1] - low[1] : close[1] - low[1]
+body_range = math.abs(close[1] - open[1])
+
+
+
+// Contraction Bar Conditions
+c_1 = close[2] >= loww * (1-tolerance)
+c_2 = close[2] <= upp * (1+tolerance)
+c_3 = open[2] >= loww * (1-tolerance)
+c_4 = open[2] <= upp * (1+tolerance)
+
+c_5 = close >= loww * (1-tolerance)
+c_6 = close <= upp * (1+tolerance)
+c_7 = open >= loww * (1-tolerance)
+c_8 = open <= upp * (1+tolerance)
+
+c_9 = body_range > up_wick
+c_10 = body_range > dn_wick
+
+c_all = c_1 and c_2 and c_3 and c_4 and c_5 and c_6 and c_7 and c_8 and c_9 and c_10 and barstate.isconfirmed
+
+color bar_color =  na
+if show_contraction_candles
+    bar_color := c_all ? contraction_candle_color : na
+    
+
+// Add new contraction bar to the array and delete the oldest one
+if c_all
+    if contraction_alert
+        alert("New Contraction Candle")
+
+    // Get 3 bars high/low
+    bars_high = math.max(high[2],high[1],high )
+    bars_low = math.min(low[2],low[1],low )
+    line_level = ( body_range * percent_x / 100 ) + math.min(close[1], open[1] )
+    
+
+    // Add line properties to arrays
+    array.unshift(upper_threshold, bars_high)
+    array.unshift(lower_threshold, bars_low)
+    array.unshift(line_x_loc, line_level)
+    array.unshift(upper_filter, line_level + (body_range * percent_filter / 100))
+    array.unshift(lower_filter, line_level - (body_range * percent_filter / 100))
+
+
+    array.unshift(bar_indexx, bar_index - 1)
+    array.unshift(line_colors, neutral_color)
+
+    
+    array.pop(upper_threshold)
+    array.pop(lower_threshold)
+    array.pop(line_x_loc)
+    array.pop(upper_filter)
+    array.pop(lower_filter)
+
+    array.pop(bar_indexx)
+    array.pop(line_colors)
+
+
+barcolor(bar_color, offset = 0)
+barcolor(bar_color, offset = -1)
+barcolor(bar_color, offset = -2)
+
+
+
+
+
+if barstate.islast
+
+    for i = 0 to size-1
+        if show_center_line
+            line.new(array.get(bar_indexx,i) , array.get(line_x_loc,i), last_bar_index, array.get(line_x_loc,i), color = array.get(line_colors,i), width = 2)
+        
+        if show_filter_line
+            line.new(array.get(bar_indexx,i) , array.get(upper_filter,i), last_bar_index, array.get(upper_filter,i), color = array.get(line_colors,i), style = line.style_dashed)
+            line.new(array.get(bar_indexx,i) , array.get(lower_filter,i), last_bar_index, array.get(lower_filter,i), color = array.get(line_colors,i), style = line.style_dashed)
+        
+        
+        // ALERTS
+        
+        if center_line_alert and ta.cross(close, array.get(line_x_loc,i))
+            alert(message = "Center Line Cross at " + str.tostring(array.get(line_x_loc,i)) )
+                
+        if up_filter_line_alert and ta.cross(close, array.get(upper_filter,i))
+            alert("Upper Filter Line Cross at " + str.tostring(array.get(upper_filter,i)) )
+                
+        if dn_filter_line_alert and ta.cross(close, array.get(lower_filter,i))
+            alert("Lower Filter Line Cross at " + str.tostring(array.get(lower_filter,i)) )
