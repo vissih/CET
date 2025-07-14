@@ -1,1 +1,1 @@
-# trading tools code
+# contraction expansion trend - cet squad tools code
