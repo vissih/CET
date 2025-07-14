@@ -1,0 +1,78 @@
+//@version=6
+indicator('Weekly/Monthly Peaks', overlay = true)
+
+// Inputs for displaying weekly and monthly levels
+showWeekLevels = input.bool(true, 'Show Prior Week Levels', group = 'Weekly Levels')
+showMonthLevels = input.bool(true, 'Show Prior Month Levels', group = 'Monthly Levels')
+
+// Inputs for line colors
+weekHighColor = input.color(color.green, 'Prior Week High Line Color', group = 'Weekly Levels')
+weekLowColor = input.color(color.red, 'Prior Week Low Line Color', group = 'Weekly Levels')
+monthHighColor = input.color(color.blue, 'Prior Month High Line Color', group = 'Monthly Levels')
+monthLowColor = input.color(color.purple, 'Prior Month Low Line Color', group = 'Monthly Levels')
+
+// Fetch prior week and prior month high/low
+weekHigh = request.security(syminfo.tickerid, 'W', high[1])
+weekLow = request.security(syminfo.tickerid, 'W', low[1])
+monthHigh = request.security(syminfo.tickerid, 'M', high[1])
+monthLow = request.security(syminfo.tickerid, 'M', low[1])
+
+// Variables to store the lines
+var line weekHighLine = na
+var line weekLowLine = na
+var line monthHighLine = na
+var line monthLowLine = na
+
+// Variables to store the labels
+var label weekHighLabel = na
+var label weekLowLabel = na
+var label monthHighLabel = na
+var label monthLowLabel = na
+
+// Plotting weekly levels and labels
+if showWeekLevels
+    if na(weekHighLine)
+        weekHighLine := line.new(bar_index[1], weekHigh, bar_index, weekHigh, width = 2, color = weekHighColor, extend = extend.both)
+        weekHighLabel := label.new(bar_index, weekHigh, 'Prior Week High: ' + str.tostring(weekHigh), xloc.bar_index, yloc.price, color = weekHighColor, style = label.style_label_down, size = size.small, textcolor = color.white, textalign = text.align_right)
+        weekHighLabel
+    else
+        line.set_xy1(weekHighLine, bar_index[1], weekHigh)
+        line.set_xy2(weekHighLine, bar_index, weekHigh)
+        line.set_color(weekHighLine, weekHighColor)
+        label.set_xy(weekHighLabel, bar_index, weekHigh)
+        label.set_text(weekHighLabel, 'Prior Week High: ' + str.tostring(weekHigh))
+
+    if na(weekLowLine)
+        weekLowLine := line.new(bar_index[1], weekLow, bar_index, weekLow, width = 2, color = weekLowColor, extend = extend.both)
+        weekLowLabel := label.new(bar_index, weekLow, 'Prior Week Low: ' + str.tostring(weekLow), xloc.bar_index, yloc.price, color = weekLowColor, style = label.style_label_up, size = size.small, textcolor = color.white, textalign = text.align_right)
+        weekLowLabel
+    else
+        line.set_xy1(weekLowLine, bar_index[1], weekLow)
+        line.set_xy2(weekLowLine, bar_index, weekLow)
+        line.set_color(weekLowLine, weekLowColor)
+        label.set_xy(weekLowLabel, bar_index, weekLow)
+        label.set_text(weekLowLabel, 'Prior Week Low: ' + str.tostring(weekLow))
+
+// Plotting monthly levels and labels
+if showMonthLevels
+    if na(monthHighLine)
+        monthHighLine := line.new(bar_index[1], monthHigh, bar_index, monthHigh, width = 2, color = monthHighColor, extend = extend.both)
+        monthHighLabel := label.new(bar_index, monthHigh, 'Prior Month High: ' + str.tostring(monthHigh), xloc.bar_index, yloc.price, color = monthHighColor, style = label.style_label_down, size = size.small, textcolor = color.white, textalign = text.align_right)
+        monthHighLabel
+    else
+        line.set_xy1(monthHighLine, bar_index[1], monthHigh)
+        line.set_xy2(monthHighLine, bar_index, monthHigh)
+        line.set_color(monthHighLine, monthHighColor)
+        label.set_xy(monthHighLabel, bar_index, monthHigh)
+        label.set_text(monthHighLabel, 'Prior Month High: ' + str.tostring(monthHigh))
+
+    if na(monthLowLine)
+        monthLowLine := line.new(bar_index[1], monthLow, bar_index, monthLow, width = 2, color = monthLowColor, extend = extend.both)
+        monthLowLabel := label.new(bar_index, monthLow, 'Prior Month Low: ' + str.tostring(monthLow), xloc.bar_index, yloc.price, color = monthLowColor, style = label.style_label_up, size = size.small, textcolor = color.white, textalign = text.align_right)
+        monthLowLabel
+    else
+        line.set_xy1(monthLowLine, bar_index[1], monthLow)
+        line.set_xy2(monthLowLine, bar_index, monthLow)
+        line.set_color(monthLowLine, monthLowColor)
+        label.set_xy(monthLowLabel, bar_index, monthLow)
+        label.set_text(monthLowLabel, 'Prior Month Low: ' + str.tostring(monthLow))

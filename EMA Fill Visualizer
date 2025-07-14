@@ -1,0 +1,28 @@
+//@version=6
+indicator(title = 'EMA Fill Visualizer', overlay = true, max_lines_count = 500, max_labels_count = 500)
+
+// === INPUT ===
+emaLength = input.int(20, "EMA Length", minval = 1)
+
+// === FUNCTION: Return Area Points for Fill ===
+f_area(a, b) =>
+    var float lineA = na
+    var float lineB = na
+    if not na(a) and not na(b)
+        lineA := a
+        lineB := b
+    [lineA, lineB]
+
+// === EMA Calculation ===
+emaLine = ta.ema(close, emaLength)
+
+// === Trend Direction ===
+uptrend = close > emaLine
+downtrend = close < emaLine
+
+// === Fill Color Based on Trend ===
+fillColor = uptrend ? color.new(color.green, 80) : color.new(color.red, 80)
+
+// === Draw Filled Area Between EMA and Price ===
+[filledA, filledB] = f_area(emaLine, close)
+fill(plot(filledA), plot(filledB), color = fillColor)

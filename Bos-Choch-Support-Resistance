@@ -1,5 +1,5 @@
 //@version=5
-indicator("vissih", overlay=true)
+indicator("bos choch support resistance", overlay=true)
 
 //BOS CHOCH Resistance and Support
 //start

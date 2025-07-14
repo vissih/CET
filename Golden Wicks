@@ -1,5 +1,5 @@
 //@version=6
-indicator('GWC', overlay = true)
+indicator('Golden Wicks', overlay = true)
 
 // === Inputs ===
 minWickBreak = input.float(1.0, title = 'Minimum Wick Breakout (USD)', minval = 0.0, maxval = 5.0, step = 0.1)
