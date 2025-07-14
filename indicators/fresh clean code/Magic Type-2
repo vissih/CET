@@ -1,5 +1,5 @@
 //@version=6
-indicator('MAGIC-v2 by vissih', overlay = true)
+indicator('Magic Type-2', overlay = true)
 
 // Calculate previous candle body boundaries
 prevBodyHigh = math.max(open[1], close[1])

@@ -1,0 +1,93 @@
+//@version=6
+indicator('Prior Day High/Low/Mid', overlay = true, max_bars_back = 500)
+
+//start
+
+// Inputs for displaying levels
+showHigh = input.bool(true, 'Show Prior Day High', group = 'Display Options')
+showMiddle = input.bool(true, 'Show Prior Day Halfback', group = 'Display Options')
+showLow = input.bool(true, 'Show Prior Day Low', group = 'Display Options')
+
+// Inputs for displaying labels
+showHighLabel = input.bool(true, 'Show Prior Day High Label', group = 'Display Options')
+showMiddleLabel = input.bool(true, 'Show Prior Day Halfback Label', group = 'Display Options')
+showLowLabel = input.bool(true, 'Show Prior Day Low Label', group = 'Display Options')
+
+// Inputs for line colors
+highLineColor = input.color(color.green, 'Prior Day High Line Color', group = 'Line Colors')
+middleLineColor = input.color(color.blue, 'Prior Day Halfback Line Color', group = 'Line Colors')
+lowLineColor = input.color(color.red, 'Prior Day Low Line Color', group = 'Line Colors')
+
+// Fetch yesterday's high, low, and calculate the middle
+yHigh = request.security(syminfo.tickerid, 'D', high[1])
+yLow = request.security(syminfo.tickerid, 'D', low[1])
+yMiddle = (yHigh + yLow) / 2
+
+// Plotting lines based on user choices
+var line highLine = na
+var line middleLine = na
+var line lowLine = na
+
+if showHigh
+    if na(highLine)
+        highLine := line.new(bar_index[1], yHigh, bar_index, yHigh, width = 2, color = highLineColor, extend = extend.both)
+        highLine
+    else
+        line.set_xy1(highLine, bar_index[1], yHigh)
+        line.set_xy2(highLine, bar_index, yHigh)
+        line.set_color(highLine, highLineColor)
+
+if showMiddle
+    if na(middleLine)
+        middleLine := line.new(bar_index[1], yMiddle, bar_index, yMiddle, width = 2, color = middleLineColor, extend = extend.both)
+        middleLine
+    else
+        line.set_xy1(middleLine, bar_index[1], yMiddle)
+        line.set_xy2(middleLine, bar_index, yMiddle)
+        line.set_color(middleLine, middleLineColor)
+
+if showLow
+    if na(lowLine)
+        lowLine := line.new(bar_index[1], yLow, bar_index, yLow, width = 2, color = lowLineColor, extend = extend.both)
+        lowLine
+    else
+        line.set_xy1(lowLine, bar_index[1], yLow)
+        line.set_xy2(lowLine, bar_index, yLow)
+        line.set_color(lowLine, lowLineColor)
+
+// Plotting labels based on user choices
+var label highLabel = na
+var label middleLabel = na
+var label lowLabel = na
+
+if showHighLabel
+    if na(highLabel)
+        highLabel := label.new(bar_index, yHigh, 'Prior Day High: ' + str.tostring(yHigh), xloc.bar_index, yloc.price, color = highLineColor, style = label.style_label_down, size = size.small, textcolor = color.white, textalign = text.align_right)
+        highLabel
+    else
+        label.set_xy(highLabel, bar_index, yHigh)
+        label.set_text(highLabel, 'Prior Day High: ' + str.tostring(yHigh))
+        label.set_color(highLabel, highLineColor)
+        label.set_style(highLabel, label.style_label_down)
+
+if showMiddleLabel
+    if na(middleLabel)
+        middleLabel := label.new(bar_index, yMiddle, 'Prior Day Halfback: ' + str.tostring(yMiddle), xloc.bar_index, yloc.price, color = middleLineColor, style = label.style_label_down, size = size.small, textcolor = color.white, textalign = text.align_right)
+        middleLabel
+    else
+        label.set_xy(middleLabel, bar_index, yMiddle)
+        label.set_text(middleLabel, 'Prior Day Halfback: ' + str.tostring(yMiddle))
+        label.set_color(middleLabel, middleLineColor)
+        label.set_style(middleLabel, label.style_label_down)
+
+if showLowLabel
+    if na(lowLabel)
+        lowLabel := label.new(bar_index, yLow, 'Prior Day Low: ' + str.tostring(yLow), xloc.bar_index, yloc.price, color = lowLineColor, style = label.style_label_up, size = size.small, textcolor = color.white, textalign = text.align_right)
+        lowLabel
+    else
+        label.set_xy(lowLabel, bar_index, yLow)
+        label.set_text(lowLabel, 'Prior Day Low: ' + str.tostring(yLow))
+        label.set_color(lowLabel, lowLineColor)
+        label.set_style(lowLabel, label.style_label_up)
+
+//end

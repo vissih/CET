@@ -1,5 +1,5 @@
-//@version=5
-indicator("vissih", overlay=true)
+//@version=6
+indicator('Engulfs', overlay = true)
 
 //engulfing candle code
 //start
@@ -12,18 +12,18 @@ var float closeBarCurrent = na
 if bar_index > 0
     openBarPrevious := open[1]
     closeBarPrevious := close[1]
+    closeBarPrevious
 
 openBarCurrent := open
 closeBarCurrent := close
 
-bullishEngulfing = (openBarCurrent <= closeBarPrevious) and (openBarCurrent < openBarPrevious) and (closeBarCurrent > openBarPrevious)
-bearishEngulfing = (openBarCurrent >= closeBarPrevious) and (openBarCurrent > openBarPrevious) and (closeBarCurrent < openBarPrevious)
+bullishEngulfing = openBarCurrent <= closeBarPrevious and openBarCurrent < openBarPrevious and closeBarCurrent > openBarPrevious
+bearishEngulfing = openBarCurrent >= closeBarPrevious and openBarCurrent > openBarPrevious and closeBarCurrent < openBarPrevious
 
-plotshape(bullishEngulfing, style = shape.triangleup, location = location.belowbar, color = color.green, size = size.tiny)
-plotshape(bearishEngulfing, style = shape.triangledown, location = location.abovebar, color = color.red, size = size.tiny)
+plotshape(bullishEngulfing, title = 'Bullish Engulfing', style = shape.triangleup, location = location.belowbar, color = color.green, size = size.tiny)
+plotshape(bearishEngulfing, title = 'Bearish Engulfing', style = shape.triangledown, location = location.abovebar, color = color.red, size = size.tiny)
 
-alertcondition(bullishEngulfing, title = "Bullish Engulfing", message = "[CurrencyPair] [TimeFrame], Bullish candle engulfing previous candle")
-alertcondition(bearishEngulfing, title = "Bearish Engulfing", message = "[CurrencyPair] [TimeFrame], Bearish candle engulfing previous candle")
+alertcondition(bullishEngulfing, title = 'Bullish Engulfing', message = '[CurrencyPair] [TimeFrame], Bullish candle engulfing previous candle')
+alertcondition(bearishEngulfing, title = 'Bearish Engulfing', message = '[CurrencyPair] [TimeFrame], Bearish candle engulfing previous candle')
 
 //end
-

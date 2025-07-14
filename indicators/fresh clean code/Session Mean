@@ -1,5 +1,5 @@
 //@version=5
-indicator("vissih", overlay=true)
+indicator("session mean", overlay=true)
 //market sessions
 //start 
 

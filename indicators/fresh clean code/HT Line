@@ -1,12 +1,12 @@
-//@version=5
-indicator("vissih", overlay=true)
+//@version=6
+indicator('HT line', overlay = true)
 
 
-//Halftrend code
+//Halftrend Line code
 //start
 
-amplitude = input.int(title="Amplitude", defval=2)
-channelDeviation = input.int(title="Channel Deviation", defval=2)
+amplitude = 2
+channelDeviation = 2
 
 var trend = 0
 var nextTrend = 0
@@ -31,30 +31,36 @@ if nextTrend == 1
         trend := 1
         nextTrend := 0
         minHighPrice := highPrice
+        minHighPrice
 else
     minHighPrice := math.min(highPrice, minHighPrice)
     if lowma > minHighPrice and close > high[1]
         trend := 0
         nextTrend := 1
         maxLowPrice := lowPrice
+        maxLowPrice
 
 if trend == 0
     if not na(trend[1]) and trend[1] != 0
         up := na(down[1]) ? down : down[1]
+        up
     else
         up := na(up[1]) ? maxLowPrice : math.max(maxLowPrice, up[1])
+        up
 else
-    if not na(trend[1]) and trend[1] != 1 
+    if not na(trend[1]) and trend[1] != 1
         down := na(up[1]) ? up : up[1]
+        down
     else
         down := na(down[1]) ? minHighPrice : math.min(minHighPrice, down[1])
+        down
 
 ht = trend == 0 ? up : down
 
-var color buyColor = color.blue
-var color sellColor = color.red
+var color buyColor = color.rgb(147, 0, 0)
+color sellColor = buyColor
 
 htColor = trend == 0 ? buyColor : sellColor
-htPlot = plot(ht, title="HalfTrend", linewidth=2, color=htColor)
+htPlot = plot(ht, linewidth = 1, color = htColor)
 
 //end

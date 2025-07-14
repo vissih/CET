@@ -1,0 +1,12 @@
+//@version=6
+indicator('Magic Type-1', overlay = true)
+
+// Conditions for bullish and bearish full range covering candles
+bullishCovering = close >= high[1] and low <= low[1]
+bearishCovering = close <= low[1] and high >= high[1]
+
+// Plot the bullish covering candle marker
+plotshape(series = bullishCovering, title = 'Bullish Magic Candle', style = shape.triangleup, location = location.belowbar, color = color.new(color.green, 0))
+
+// Plot the bearish covering candle marker
+plotshape(series = bearishCovering, title = 'Bearish Magic Candle', style = shape.triangledown, location = location.abovebar, color = color.new(color.red, 0))
